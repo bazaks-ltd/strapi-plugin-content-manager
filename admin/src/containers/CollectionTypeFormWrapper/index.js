@@ -27,7 +27,9 @@ import selectCrudReducer from '../../sharedReducers/crudReducer/selectors';
 import { getRequestUrl } from './utils';
 
 // This container is used to handle the CRUD
-const CollectionTypeFormWrapper = ({ allLayoutData, children, slug, id, origin }) => {
+const CollectionTypeFormWrapper = ({ 
+  allLayoutData, children, slug,
+   id: originalId, origin, ids }) => {
   const { emitEvent } = useGlobalContext();
   const { push, replace } = useHistory();
   const [{ rawQuery }] = useQueryParams();
@@ -39,13 +41,16 @@ const CollectionTypeFormWrapper = ({ allLayoutData, children, slug, id, origin }
     isLoading,
     status,
   } = useSelector(selectCrudReducer);
+
+  const id = originalId ? originalId :
+    (ids && ids.length > 0 ? 
+      ids[ids.length - 1] : null) ;
   const redirectionLink = useFindRedirectionLink(slug);
 
   const isMounted = useRef(true);
   const emitEventRef = useRef(emitEvent);
 
   const allLayoutDataRef = useRef(allLayoutData);
-
   const isCreatingEntry = id === null;
 
   const requestURL = useMemo(() => {
@@ -307,6 +312,42 @@ const CollectionTypeFormWrapper = ({ allLayoutData, children, slug, id, origin }
     [cleanReceivedData, displayErrors, slug, id, dispatch]
   );
 
+  const onBulkEdit = useCallback(
+    async (body, trackerProperty) => {
+
+      const endPoint = getRequestUrl(`${slug}/bulk_edit`);
+
+      try {
+
+        dispatch(setStatus('submit-pending'));
+
+        const response = await request(endPoint, { method: 'PUT', body: {
+          updates: body,
+          ids
+        } });
+
+        console.log(response);
+
+        
+        strapi.notification.toggle({
+          type: 'success',
+          message: { id: getTrad('success.record.save') },
+        });
+
+        dispatch(submitSucceeded(cleanReceivedData(response)));
+
+        dispatch(setStatus('resolved'));
+      } catch (err) {
+        emitEventRef.current('didNotEditEntry', { error: err, trackerProperty });
+        displayErrors(err);
+
+        dispatch(setStatus('resolved'));
+      }
+      
+    },
+    [cleanReceivedData, displayErrors, slug, id, dispatch]
+  );
+
   const onUnpublish = useCallback(async () => {
     const endPoint = getRequestUrl(`${slug}/${id}/actions/unpublish`);
 
@@ -333,12 +374,15 @@ const CollectionTypeFormWrapper = ({ allLayoutData, children, slug, id, origin }
     contentTypeDataStructure,
     data,
     isCreatingEntry,
+    isBulkEditingEntries: ids ? true : false,
+    ids,
     isLoadingForData: isLoading,
     onDelete,
     onDeleteSucceeded,
     onPost,
     onPublish,
     onPut,
+    onBulkEdit,
     onUnpublish,
     status,
     redirectionLink,
@@ -348,6 +392,7 @@ const CollectionTypeFormWrapper = ({ allLayoutData, children, slug, id, origin }
 CollectionTypeFormWrapper.defaultProps = {
   id: null,
   origin: null,
+  ids: null,
 };
 
 CollectionTypeFormWrapper.propTypes = {
@@ -369,6 +414,7 @@ CollectionTypeFormWrapper.propTypes = {
   }).isRequired,
   children: PropTypes.func.isRequired,
   id: PropTypes.string,
+  editList: PropTypes.string,
   origin: PropTypes.string,
   slug: PropTypes.string.isRequired,
 };

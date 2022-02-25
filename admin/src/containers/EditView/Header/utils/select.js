@@ -12,6 +12,8 @@ function useSelect() {
     modifiedData,
     onPublish,
     onUnpublish,
+    isBulkEditingEntries,
+    ids,
   } = useContentManagerEditViewDataManager();
 
   return {
@@ -25,6 +27,8 @@ function useSelect() {
     modifiedData,
     onPublish,
     onUnpublish,
+    isBulkEditingEntries,
+    ids
   };
 }
 

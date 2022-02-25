@@ -141,7 +141,7 @@ const CustomTable = ({
     <Table className="table">
       <Headers headers={headers} isBulkable={isBulkable && canDelete} />
       <tbody>
-        {entriesToDelete.length > 0 && <ActionCollapse colSpan={colSpanLength} />}
+        {entriesToDelete.length > 0 && <ActionCollapse goTo={handleEditGoTo} colSpan={colSpanLength} />}
         {content}
       </tbody>
     </Table>

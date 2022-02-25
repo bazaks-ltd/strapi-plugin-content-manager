@@ -37,8 +37,10 @@ const EditView = ({
   id,
   origin,
   userPermissions,
+  ids: editList,
 }) => {
   const { currentEnvironment, plugins } = useGlobalContext();
+  const ids = editList ? JSON.parse(Buffer.from(decodeURIComponent(editList), 'base64')) : null;
 
   const {
     createActionAllowedFields,
@@ -82,17 +84,19 @@ const EditView = ({
   }, [currentContentTypeLayoutData]);
 
   return (
-    <DataManagementWrapper allLayoutData={layout} slug={slug} id={id} origin={origin}>
+    <DataManagementWrapper allLayoutData={layout} slug={slug} id={id} origin={origin} ids={ids}>
       {({
         componentsDataStructure,
         contentTypeDataStructure,
         data,
         isCreatingEntry,
+        isBulkEditingEntries,
         isLoadingForData,
         onDelete,
         onDeleteSucceeded,
         onPost,
         onPublish,
+        onBulkEdit,
         onPut,
         onUnpublish,
         redirectionLink,
@@ -110,9 +114,12 @@ const EditView = ({
             isCreatingEntry={isCreatingEntry}
             isLoadingForData={isLoadingForData}
             isSingleType={isSingleType}
+            isBulkEditingEntries={isBulkEditingEntries}
+            ids={ids}
             onPost={onPost}
             onPublish={onPublish}
             onPut={onPut}
+            onBulkEdit={onBulkEdit}
             onUnpublish={onUnpublish}
             readActionAllowedFields={readActionAllowedFields}
             redirectToPreviousPage={goBack}

@@ -23,6 +23,8 @@ const Header = ({
   componentLayouts,
   initialData,
   isCreatingEntry,
+  isBulkEditingEntries,
+  ids,
   isSingleType,
   hasDraftAndPublish,
   layout,
@@ -51,11 +53,19 @@ const Header = ({
   const apiID = useMemo(() => layout.apiID, [layout.apiID]);
 
   /* eslint-disable indent */
-  const entryHeaderTitle = isCreatingEntry
-    ? formatMessage({
+  const entryHeaderTitle = useMemo(() => {
+    if (isBulkEditingEntries) {
+      return "Editing ids: " + ids.toString() + "<<";
+    } else if (isCreatingEntry) {
+      return formatMessage({
         id: getTrad('containers.Edit.pluginHeader.title.new'),
-      })
-    : templateObject({ mainField: currentContentTypeMainField }, initialData).mainField;
+      });
+    }
+    else {
+      return templateObject({ mainField: currentContentTypeMainField }, initialData).mainField;
+    }
+
+  });
   /* eslint-enable indent */
 
   const headerTitle = useMemo(() => {
@@ -184,7 +194,6 @@ const Header = ({
   );
 
   const contentIdSuffix = draftRelationsCount > 1 ? 'plural' : 'singular';
-
   return (
     <>
       <PluginHeader {...headerProps} />

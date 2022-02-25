@@ -8,7 +8,7 @@ import {
   OverlayBlocker,
   ContentManagerEditViewDataManagerContext,
 } from 'strapi-helper-plugin';
-import { getTrad, removeKeyInObject } from '../../utils';
+import { getTrad, removeKeyInObject, diff } from '../../utils';
 import reducer, { initialState } from './reducer';
 import { cleanData, createYupSchema, getYupInnerErrors } from './utils';
 
@@ -22,9 +22,12 @@ const EditViewDataManagerProvider = ({
   from,
   initialValues,
   isCreatingEntry,
+  isBulkEditingEntries,
+  ids,
   isLoadingForData,
   isSingleType,
   onPost,
+  onBulkEdit,
   onPublish,
   onPut,
   onUnpublish,
@@ -266,9 +269,11 @@ const EditViewDataManagerProvider = ({
       try {
         await yupSchema.validate(modifiedData, { abortEarly: false });
 
-        const formData = createFormData(modifiedData);
+        const formData = createFormData(diff(initialData, modifiedData));        
+        if (isBulkEditingEntries) {
+          onBulkEdit(formData, trackerProperty);
 
-        if (isCreatingEntry) {
+        } else if (isCreatingEntry) {
           onPost(formData, trackerProperty);
         } else {
           onPut(formData, trackerProperty);
@@ -443,6 +448,8 @@ const EditViewDataManagerProvider = ({
         hasDraftAndPublish,
         initialData,
         isCreatingEntry,
+        isBulkEditingEntries,
+        ids,
         isSingleType,
         shouldNotRunValidations,
         status,

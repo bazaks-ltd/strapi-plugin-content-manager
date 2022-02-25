@@ -117,6 +117,47 @@ module.exports = {
     })();
   },
 
+  async bulkEdit(ctx) {
+    const { userAbility, user } = ctx.state;
+    const { model } = ctx.params;
+    const { body: {updates, ids}} = ctx.request;
+
+    const entityManager = getService('entity-manager');
+    const permissionChecker = getService('permission-checker').create({ userAbility, model });
+
+    if (permissionChecker.cannot.update()) {
+      return ctx.forbidden();
+    }
+    
+    if (ids && updates) {
+      for (const id of ids) {
+        const entity = await entityManager.findOneWithCreatorRoles(id, model);
+
+        if (!entity) {
+          return ctx.notFound();
+        }
+    
+        if (permissionChecker.cannot.update(entity)) {
+          return ctx.forbidden();
+        }
+    
+        const pickWritables = pickWritableAttributes({ model });
+        const pickPermittedFields = permissionChecker.sanitizeUpdateInput(entity);
+        const setCreator = setCreatorFields({ user, isEdition: true });
+    
+        const sanitizeFn = pipe([pickWritables, pickPermittedFields, setCreator]);
+        await wrapBadRequest(async () => {
+          const updatedEntity = await entityManager.update(entity, sanitizeFn(updates), model);
+    
+          ctx.body = permissionChecker.sanitizeOutput(updatedEntity);
+        })();
+      }
+
+    } else {
+      return ctx.notFound();
+    }
+  },
+
   async delete(ctx) {
     const { userAbility } = ctx.state;
     const { id, model } = ctx.params;

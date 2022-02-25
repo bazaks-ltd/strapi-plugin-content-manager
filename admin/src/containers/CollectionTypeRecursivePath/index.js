@@ -56,7 +56,7 @@ const CollectionTypeRecursivePath = ({
       location: { state },
       history: { goBack },
       match: {
-        params: { id, origin },
+        params: { id, origin, ids },
       },
     },
     Component
@@ -69,6 +69,7 @@ const CollectionTypeRecursivePath = ({
         goBack={goBack}
         id={id}
         origin={origin}
+        ids={ids}
       />
     );
   };
@@ -76,6 +77,7 @@ const CollectionTypeRecursivePath = ({
   const routes = [
     { path: 'create/clone/:origin', comp: EditViewLayoutManager },
     { path: 'create', comp: EditViewLayoutManager },
+    { path: 'bulkedit/:ids', comp: EditViewLayoutManager },
     { path: ':id', comp: EditViewLayoutManager },
     { path: '', comp: ListViewLayout },
   ].map(({ path, comp }) => (
