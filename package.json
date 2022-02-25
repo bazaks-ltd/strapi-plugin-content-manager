@@ -1,6 +1,6 @@
 {
   "name": "strapi-plugin-content-manager",
-  "version": "bz3.6.8.1",
+  "version": "3.6.8",
   "description": "A powerful UI to easily manage your data.",
   "strapi": {
     "name": "Content Manager",
