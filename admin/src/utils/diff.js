@@ -1,4 +1,7 @@
 const diff = (initial, modified) => {
+    // no modifications
+    if(initial == null) return modified;
+
     return Object.keys(modified).reduce((previous, key) => {
       // array check 
       if (key in initial && modified[key] instanceof Array) {
