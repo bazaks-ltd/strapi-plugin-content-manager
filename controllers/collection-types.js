@@ -121,6 +121,10 @@ module.exports = {
     const { userAbility, user } = ctx.state;
     const { model } = ctx.params;
     const { body: {updates, ids}} = ctx.request;
+    const filteredUpdates = {}
+    if (updates.status) {
+      filteredUpdates['status'] = updates.status
+    }
 
     const entityManager = getService('entity-manager');
     const permissionChecker = getService('permission-checker').create({ userAbility, model });
@@ -147,8 +151,7 @@ module.exports = {
     
         const sanitizeFn = pipe([pickWritables, pickPermittedFields, setCreator]);
         await wrapBadRequest(async () => {
-          const updatedEntity = await entityManager.update(entity, sanitizeFn(updates), model);
-    
+          const updatedEntity = await entityManager.update(entity, sanitizeFn(filteredUpdates), model);
           ctx.body = permissionChecker.sanitizeOutput(updatedEntity);
         })();
       }
