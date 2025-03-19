@@ -55,7 +55,7 @@ const Header = ({
   /* eslint-disable indent */
   const entryHeaderTitle = useMemo(() => {
     if (isBulkEditingEntries) {
-      return "Editing ids: " + ids.toString();
+      return "Edit status for ids " + ids.toString();
     } else if (isCreatingEntry) {
       return formatMessage({
         id: getTrad('containers.Edit.pluginHeader.title.new'),
@@ -71,7 +71,7 @@ const Header = ({
   const headerTitle = useMemo(() => {
     const title = isSingleType ? currentContentTypeName : entryHeaderTitle;
 
-    return (title || currentContentTypeName) + ' (bulk edit - status only)';
+    return (title || currentContentTypeName);
   }, [currentContentTypeName, entryHeaderTitle, isSingleType]);
 
   const checkIfHasDraftRelations = useCallback(() => {
